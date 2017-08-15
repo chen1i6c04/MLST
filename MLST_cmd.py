@@ -4,19 +4,21 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 
 parser = ArgumentParser()
-parser.add_argument('-i', required=True, help='path for sequence folder locations')
-parser.add_argument('-o', required=True, help='result of output path')
+parser.add_argument('-i', required=True, help='Path for sequence folder locations')
+parser.add_argument('-o', required=True, help='Result of output path')
+parser.add_argument('-t', type=int, default=2, required=False, help='Number of core be used')
 
 def main():
     args = parser.parse_args()
     in_folder = args.i
     out_folder = args.o
+    thread = args.t
 
     path = []
     for i in os.listdir(in_folder):
         path.append((os.path.join(in_folder, i), out_folder))
 
-    with ProcessPoolExecutor(4) as executor:
+    with ProcessPoolExecutor(thread) as executor:
         executor.map(multiple_work, path)
 
     result_collect.collect(out_folder)
@@ -28,6 +30,3 @@ def multiple_work(i):
 
 if __name__ == '__main__':
     main()
-# for i in os.listdir(in_folder):
-#     file = os.path.join(in_folder, i)
-#     mlst.main(file, out_folder)
