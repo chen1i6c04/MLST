@@ -72,13 +72,13 @@ def mlst():
     df['Gaps'] = gaps
     df['Allele'] = allele
     df.to_csv('{}.csv'.format(os.path.join(out_folder, 'mlst_report')), index=False)
-    st = [int(i) for i in st]
     return st
 
 def result(st):
     if 'unknown' in st:
         return 'unknown'
     else:
+        st = [int(i) for i in st]
         senterica_ST = senterica.values.tolist()
         for i in senterica_ST:
             if st == i:
