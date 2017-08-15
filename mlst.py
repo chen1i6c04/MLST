@@ -4,20 +4,40 @@ import pandas as pd
 from Bio.Blast import NCBIXML
 
 
-gene = ['AROC', 'DNAN', 'HEMD', 'HISD', 'PURE', 'SUCA', 'THRA']
-database = 'database'
-senterica = pd.read_csv('senterica.csv', index_col=0)
+# gene = ['AROC', 'DNAN', 'HEMD', 'HISD', 'PURE', 'SUCA', 'THRA']
+# database = 'database'
+# senterica = pd.read_csv('senterica.csv', index_col=0)
 
-def main(file, outpath):
+def main(file, outpath, species):
     file_name = file.split('/')[-1]
+
+    # === search database of bacterial ===
+    database_gene(species)
+
+    # === make out folder ===
     makeoutfolder(file_name, outpath)
+
+    # === run blast ===
     blast(file)
+
+    # === run mlst ===
     st = mlst()
+
+    # === print result ===
     seq_type = result(st)
+
     df = pd.DataFrame()
     df['Assembly'] = [file_name.split('_')[0] + '_' + file_name.split('_')[1]]
     df['Sequence type'] = [seq_type]
     df.to_csv('{}.csv'.format(os.path.join(out_folder, 'result')), index=False)
+
+def database_gene(species):
+    global gene
+    global database
+    global allele_profile
+    database = 'database/' + species
+    gene = sorted(set([i.split('.')[0] for i in os.listdir(database)]))
+    allele_profile = pd.read_csv('{}.csv'.format(species), index_col=0)
 
 def makeoutfolder(file_name, outpath):
     global out_folder
@@ -56,7 +76,7 @@ def mlst():
                             if hsp.score / alignment.length == 1 and hsp.gaps == 0:
                                 st.append(alignment.hit_def.split('-')[-1])
                             else:
-                                st.append('unknown')
+                                st.append(0)
                             locus.append(alignment.hit_def.split('-')[0])
                             allele.append(alignment.hit_def)
                             identity.append("%.2f" % float(float(hsp.identities) / float(alignment.length) * 100))
@@ -75,11 +95,11 @@ def mlst():
     return st
 
 def result(st):
-    if 'unknown' in st:
+    if 0 in st:
         return 'unknown'
     else:
         st = [int(i) for i in st]
-        senterica_ST = senterica.values.tolist()
-        for i in senterica_ST:
+        allele_profiling = allele_profile.values.tolist()
+        for i in allele_profiling:
             if st == i:
-                return senterica.index[senterica_ST.index(i)]
+                return allele_profile.index[allele_profiling.index(i)]
