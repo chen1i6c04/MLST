@@ -11,10 +11,6 @@ def species_gene(database):
     gene = sorted(set([i.split('.')[0] for i in os.listdir(database)]))
     return gene
 
-def allele_profile(species):
-    profile = pd.read_csv('{}.csv'.format(species), index_col=0)
-    return profile
-
 def makeoutfolder(in_file, outpath):
     out_folder = os.path.join(outpath, in_file.split('/')[-1])
     if os.path.exists(out_folder):
@@ -58,8 +54,6 @@ def mlst(gene, out_folder):
                             hps_length.append(hsp.align_length)
                             allele_length.append(alignment.length)
                             gaps.append(hsp.gaps)
-
-
     df['Locus'] = locus
     df['Identity'] = identity
     df['HPS length'] = hps_length
@@ -69,12 +63,14 @@ def mlst(gene, out_folder):
     df.to_csv('{}.csv'.format(os.path.join(out_folder, 'mlst_report')), index=False)
     return st
 
-def result(st, profile):
+def result(st, allele_profile):
     if 0 in st:
         return 'unknown'
     else:
         st = [int(i) for i in st]
-        allele_profiling = profile.values.tolist()
+        allele_profiling = allele_profile.values.tolist()
         for i in allele_profiling:
             if st == i:
-                return profile.index[allele_profiling.index(i)]
+                return allele_profile.index[allele_profiling.index(i)]
+            else:
+                return 'new type'
