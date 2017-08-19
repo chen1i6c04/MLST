@@ -16,7 +16,7 @@ def main():
     out_path = args.o
     thread = args.t
     species = args.s
-    allele_profile = pd.read_csv('{}.csv'.format(species), index_col=0)
+    allele_profile = pd.read_csv('{}.csv'.format('allele_profile/' + species), index_col=0)
 
     if os.path.isdir(in_path) == True:
         commend = []

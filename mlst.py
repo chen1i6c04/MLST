@@ -25,7 +25,6 @@ def blast(file, gene, out_folder, database):
         blastx_cline()
 
 def mlst(gene, out_folder):
-    df = pd.DataFrame()
     st = []
     locus = []
     allele = []
@@ -44,7 +43,7 @@ def mlst(gene, out_folder):
                     else:
                         count += 1
                         for hsp in alignment.hsps:
-                            if hsp.align_length / alignment.length == 1 and hsp.gaps == 0:
+                            if hsp.align_length == alignment.length and hsp.gaps == 0:
                                 st.append(alignment.hit_def.split('-')[-1])
                             else:
                                 st.append(0)
@@ -54,12 +53,12 @@ def mlst(gene, out_folder):
                             hps_length.append(hsp.align_length)
                             allele_length.append(alignment.length)
                             gaps.append(hsp.gaps)
-    df['Locus'] = locus
-    df['Identity'] = identity
-    df['HPS length'] = hps_length
-    df['Allele length'] = allele_length
-    df['Gaps'] = gaps
-    df['Allele'] = allele
+    df = pd.DataFrame({'Locus': locus
+                          , 'Identity': identity
+                          , 'HPS length': hps_length
+                          , 'Allele length': allele_length
+                          , 'Gaps': gaps
+                          , 'Allele': allele})
     df.to_csv('{}.csv'.format(os.path.join(out_folder, 'mlst_report')), index=False)
     return st
 
@@ -72,5 +71,3 @@ def result(st, allele_profile):
         for i in allele_profiling:
             if st == i:
                 return allele_profile.index[allele_profiling.index(i)]
-            else:
-                return 'new type'

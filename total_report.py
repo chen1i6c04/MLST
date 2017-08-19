@@ -11,4 +11,4 @@ def collect(out_path):
     for i in all_result:
         df = pd.concat([df, i])
 
-    df.to_csv(os.path.join(out_path, 'all_result.csv'), index=False)
+    df.to_csv('all_result.csv', index=False)
